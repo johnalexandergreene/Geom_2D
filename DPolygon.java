@@ -13,6 +13,8 @@ import java.util.List;
 public class DPolygon extends ArrayList<DPoint>{
   
   private static final long serialVersionUID=5206593635245516246L;
+  
+  public Object object;//general purpose handy object
 
   /*
    * ################################

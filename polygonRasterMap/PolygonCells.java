@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +15,24 @@ import org.fleen.geom_2D.DPolygon;
 /*
  * A polygon's shadow upon the raster cell array
  * all of the cells in which the Polygon manifests as a non-zero intensity Presence
+ * 
+ * 
+ * TODO this is too memory consuming
+ * 
+ * New alg
+ * 
+ * for each cell
+ *   get relationship to all polygons
+ *     contained, near edge, etc
+ * optimize the crap out of that
+ * 
+ * wait
+ *   new interior cell getter
+ *   stop at off-graph cells
+ * 
+ * 
+ *  
+ * 
  */
 public class PolygonCells{
   
@@ -63,8 +82,11 @@ public class PolygonCells{
    * ################################
    */
   
-  //all locally referred to cells, either from hashmap or created 
-  Map<CellKey,Cell> cellcache=new Hashtable<CellKey,Cell>();
+  /*
+   * when we're getting cells we first look in the local cache
+   * if the cell isn't there then we get it from the raster map (from the cells array or create it) and stick it in the local cache
+   */
+  Map<CellKey,Cell> localcellcache=new Hashtable<CellKey,Cell>();
   
   //the cells right on the edge-line of the polygon
   Set<Cell> primaryedgecells=new HashSet<Cell>();
@@ -88,15 +110,15 @@ public class PolygonCells{
    */
   Cell getCell(int x,int y){
     CellKey k=new CellKey(x,y);
-    Cell c=cellcache.get(k);
-    if(c==null)c=rastermap.getCell(x,y);
+    Cell c=localcellcache.get(k);
+    if(c==null){
+      c=rastermap.getCell(x,y);
+      localcellcache.put(k,c);}
     return c;}
   
-  private void addCellsToCache(Collection<Cell> cells){
-    CellKey k;
-    for(Cell c:cells){
-      k=new CellKey(c);
-      cellcache.put(k,c);}}
+  Cell getCellContainingPoint(double x,double y){
+    Cell c=rastermap.getCellContainingPoint(x,y);
+    return getCell(c.x,c.y);}
   
   /*
    * ################################
@@ -106,11 +128,20 @@ public class PolygonCells{
   
   private void doInteriorCells(){
     Set<Cell> layer=edgeinteriorlayers.get(edgeinteriorlayers.size()-1);
+    removeOffMapCells(layer);
     while(!layer.isEmpty()){
       layer=getLayerOfUnmarkedCells(layer);
+      removeOffMapCells(layer);
       markInteriorCells(layer);
-      interiorlayers.add(layer);
-      addCellsToCache(layer);}}
+      interiorlayers.add(layer);}}
+  
+  private void removeOffMapCells(Set<Cell> cells){
+    Iterator<Cell> i=cells.iterator();
+    Cell c;
+    while(i.hasNext()){
+      c=i.next();
+      if(rastermap.isOffMap(c.x,c.y))
+        i.remove();}}
   
   /*
    * ################################
@@ -154,16 +185,14 @@ public class PolygonCells{
     for(int i=0;i<count;i++){
       layer=getLayerOfUnmarkedCells(layer);
       markInteriorEdgeCells(layer);
-      edgeinteriorlayers.add(layer);
-      addCellsToCache(layer);}}
+      edgeinteriorlayers.add(layer);}}
   
   private void doAdditionalExteriorEdgeLayers(Set<Cell> exlayer,int count){
     Set<Cell> layer=exlayer;
     for(int i=0;i<count;i++){
       layer=getLayerOfUnmarkedCells(layer);
       markExteriorEdgeCells(layer);
-      edgeexteriorlayers.add(layer);
-      addCellsToCache(layer);}}
+      edgeexteriorlayers.add(layer);}}
   
   /*
    * ################################
@@ -188,11 +217,10 @@ public class PolygonCells{
       if(i1==s)i1=0;
       p0=transformedpolygon.get(i0);
       p1=transformedpolygon.get(i1);
-      c0=rastermap.getCellContainingPoint(p0.x,p0.y);
-      c1=rastermap.getCellContainingPoint(p1.x,p1.y);
+      c0=getCellContainingPoint(p0.x,p0.y);
+      c1=getCellContainingPoint(p1.x,p1.y);
       primaryedgecells.addAll(getSegCells(c0.x,c0.y,c1.x,c1.y));}
-    markEdgeCells(primaryedgecells);
-    addCellsToCache(primaryedgecells);}
+    markEdgeCells(primaryedgecells);}
   
   /*
    * PSEUDOBRESENHAM SUPERCOVER LINE DRAW
@@ -238,13 +266,13 @@ public class PolygonCells{
           error -= ddx; 
           // three cases (octant == right->right-top for directions below): 
           if (error + errorprev < ddx){  // bottom square also
-            segcells.add(rastermap.getCell(x,y-ystep));
+            segcells.add(getCell(x,y-ystep));
           }else if(error + errorprev > ddx){  // left square also 
-            segcells.add(rastermap.getCell(x-xstep,y));
+            segcells.add(getCell(x-xstep,y));
           }else{  // corner: bottom and left squares also 
-            segcells.add(rastermap.getCell(x,y-ystep));
-            segcells.add(rastermap.getCell(x-xstep,y));}} 
-        segcells.add(rastermap.getCell(x,y));
+            segcells.add(getCell(x,y-ystep));
+            segcells.add(getCell(x-xstep,y));}} 
+        segcells.add(getCell(x,y));
         errorprev = error;} 
     }else{// the same as above 
       errorprev = error = dy; 
@@ -255,13 +283,13 @@ public class PolygonCells{
           x += xstep; 
           error -= ddy; 
           if (error + errorprev < ddy){ 
-            segcells.add(rastermap.getCell(x-xstep,y));
+            segcells.add(getCell(x-xstep,y));
           }else if (error + errorprev > ddy){ 
-            segcells.add(rastermap.getCell(x,y-ystep));
+            segcells.add(getCell(x,y-ystep));
           }else{ 
-            segcells.add(rastermap.getCell(x-xstep,y));
-            segcells.add(rastermap.getCell(x,y-ystep));}}
-        segcells.add(rastermap.getCell(x,y));
+            segcells.add(getCell(x-xstep,y));
+            segcells.add(getCell(x,y-ystep));}}
+        segcells.add(getCell(x,y));
         errorprev = error;}}
     return segcells;}
   

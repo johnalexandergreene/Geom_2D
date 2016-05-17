@@ -2,10 +2,8 @@ package org.fleen.geom_2D.polygonRasterMap;
 
 import java.awt.geom.AffineTransform;
 import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.fleen.geom_2D.DPolygon;
 
@@ -29,18 +27,23 @@ public class PolygonRasterMap implements Iterable<Cell>{
    */
   
   //empty
-  PolygonRasterMap(int w,int h,AffineTransform t,double glowspan){
+  public PolygonRasterMap(int w,int h,AffineTransform t,double glowspan){
     this.glowspan=glowspan;
     this.transform=t;
     initCells(w,h);}
   
   //1 polygon
-  PolygonRasterMap(int w,int h,AffineTransform t,double glowspan,DPolygon polygon){
+  public PolygonRasterMap(int w,int h,AffineTransform t,double glowspan,DPolygon polygon){
     this(w,h,t,glowspan);
     castPresence(polygon);}
   
   //a list of polygons
-  PolygonRasterMap(int w,int h,AffineTransform t,double glowspan,List<DPolygon> polygons){
+  public PolygonRasterMap(int w,int h,AffineTransform t,double glowspan,List<DPolygon> polygons){
+    this(w,h,t,glowspan);
+    castPresence(polygons);}
+  
+  //an array of polygons
+  public PolygonRasterMap(int w,int h,AffineTransform t,double glowspan,DPolygon... polygons){
     this(w,h,t,glowspan);
     castPresence(polygons);}
   
@@ -104,11 +107,14 @@ public class PolygonRasterMap implements Iterable<Cell>{
   
   Cell getCell(int x,int y){
     //if the cell is off array then create it and return it
-    if(x<0||x>=cellarraywidth||y<0||y>=cellarrayheight){
+    if(isOffMap(x,y)){
       return new Cell(this,x,y,true);
     //if the cell is on the array then return that cell
     }else{
       return cells[x][y];}}
+  
+  boolean isOffMap(int x,int y){
+    return x<0||x>=cellarraywidth||y<0||y>=cellarrayheight;}
   
   public Iterator<Cell> iterator(){
     return new RasterCellIterator(this);}
@@ -122,24 +128,21 @@ public class PolygonRasterMap implements Iterable<Cell>{
    * ################################
    */
   
-  PolygonCells castPresence(DPolygon polygon){
+  public PolygonCells castPresence(DPolygon polygon){
     //cast the presence, create the polygoncellmap and return it
     //if the polygon crosses the edge of the viewport then the polygoncellmap will contain some cells that are not within this rastermap
-    //fact is, after this method we will probably never use the polygoncellmap except for debugging and maybe tool graphics 
     //the polygoncellmap is just a way of doing the cell presences in an orderly way
+    //Yes we return the PolygonCells object but after this method we will probably never use PolygonCells except for debugging and maybe tools 
     PolygonCells pcm=new PolygonCells(this,polygon);
     return pcm;}
   
-  Map<DPolygon,PolygonCells> castPresence(List<DPolygon> polygons){
-    Map<DPolygon,PolygonCells> maps=new Hashtable<DPolygon,PolygonCells>();
-    PolygonCells pcm;
-    for(DPolygon polygon:polygons){
-      pcm=castPresence(polygon);
-      if(polygon!=null)
-        maps.put(polygon,pcm);}
-    return maps;}
+  public void castPresence(List<DPolygon> polygons){
+//    Map<DPolygon,PolygonCells> maps=new Hashtable<DPolygon,PolygonCells>();
+//    PolygonCells pcm;
+    for(DPolygon polygon:polygons)
+      castPresence(polygon);}
   
-  Map<DPolygon,PolygonCells> castPresence(DPolygon... polygons){
-    return castPresence(Arrays.asList(polygons));}
+  public void castPresence(DPolygon... polygons){
+    castPresence(Arrays.asList(polygons));}
   
 }

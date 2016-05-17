@@ -17,7 +17,7 @@ import org.fleen.geom_2D.DPolygon;
  *   Move outward and the presence decreases to 0.0 
  * 
  */
-class Cell{
+public class Cell{
   
   /*
    * ################################
@@ -56,7 +56,7 @@ class Cell{
   
   //coors within the cellarray
   //the cell center is also the cell coors
-  int x,y;
+  public int x,y;
   
   List<Cell> getNeighbors(){
     List<Cell> n=new ArrayList<Cell>(8);
@@ -92,31 +92,31 @@ class Cell{
    * we sometimes want to refer to cells that are in the polygoncellmap.cellcache but not
    * in the rastermap. So we check the cache first.
    */
-  List<Cell> getNeighbors(PolygonCells m){
+  List<Cell> getNeighbors(PolygonCells pc){
     List<Cell> n=new ArrayList<Cell>(8);
     //N
-    Cell a=m.getCell(x,y+1);
+    Cell a=pc.getCell(x,y+1);
     if(a!=null)n.add(a);
     //NE
-    a=m.getCell(x+1,y+1);
+    a=pc.getCell(x+1,y+1);
     if(a!=null)n.add(a);
     //E
-    a=m.getCell(x+1,y);
+    a=pc.getCell(x+1,y);
     if(a!=null)n.add(a);
     //SE
-    a=m.getCell(x+1,y-1);
+    a=pc.getCell(x+1,y-1);
     if(a!=null)n.add(a);
     //S
-    a=m.getCell(x,y-1);
+    a=pc.getCell(x,y-1);
     if(a!=null)n.add(a);
     //SW
-    a=m.getCell(x-1,y-1);
+    a=pc.getCell(x-1,y-1);
     if(a!=null)n.add(a);
     //W
-    a=m.getCell(x-1,y);
+    a=pc.getCell(x-1,y);
     if(a!=null)n.add(a);
     //NW
-    a=m.getCell(x-1,y+1);
+    a=pc.getCell(x-1,y+1);
     if(a!=null)n.add(a);
     //
     return n;}
@@ -133,7 +133,7 @@ class Cell{
    */
   private static final int INITPRESENCELISTSIZE=10;
   
-  List<Presence> presences=new ArrayList<Presence>(INITPRESENCELISTSIZE);
+  public List<Presence> presences=new ArrayList<Presence>(INITPRESENCELISTSIZE);
   
   void addPresence(Presence p){
     presences.add(p);}

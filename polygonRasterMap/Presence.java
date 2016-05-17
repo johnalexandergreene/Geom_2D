@@ -8,7 +8,7 @@ public class Presence{
     this.polygon=polygon;
     this.intensity=intensity;}
   
-  DPolygon polygon;
-  double intensity;//range 0..1
+  public DPolygon polygon;
+  public double intensity;//range 0..1
 
 }
