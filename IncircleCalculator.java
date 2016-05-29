@@ -17,7 +17,9 @@ import java.util.Random;
  */
 public class IncircleCalculator{
   
-  private static final int SAMPLESIZE=400,SCANCOUNT=6;
+//  private static final int SAMPLESIZE=400,SCANCOUNT=6;//unnecessarily thorough?
+  private static final int SAMPLESIZE=80,SCANCOUNT=5;
+//  private static final int SAMPLESIZE=60,SCANCOUNT=4;
   
   /*
    * ################################
@@ -31,14 +33,14 @@ public class IncircleCalculator{
    */
   public static final DCircle getIncircle(double[][] polygonpoints){
     IncircleCalculator irc=new IncircleCalculator(Arrays.asList(polygonpoints));
-    return new DCircle(irc.deeppoint[0],irc.deeppoint[1],irc.deeppointdepth);}
+    return new DCircle(irc.deeppoint[0],irc.deeppoint[1],Math.sqrt(irc.deeppointdepthsquared));}
   
   public static final DCircle getIncircle(List<DPoint> polygonpoints){
     List<double[]> a=new ArrayList<double[]>(polygonpoints.size());
     for(DPoint p:polygonpoints)
       a.add(new double[]{p.x,p.y});
     IncircleCalculator irc=new IncircleCalculator(a);
-    return new DCircle(irc.deeppoint[0],irc.deeppoint[1],irc.deeppointdepth);}
+    return new DCircle(irc.deeppoint[0],irc.deeppoint[1],Math.sqrt(irc.deeppointdepthsquared));}
   
   /*
    * ################################
@@ -54,7 +56,7 @@ public class IncircleCalculator{
   private double 
     scanboxleft,scanboxtop,
     scanboxwidth,scanboxheight,
-    deeppointdepth;
+    deeppointdepthsquared;
   
   private IncircleCalculator(List<double[]> polygonpoints){
     this.polygonpoints=polygonpoints;
@@ -96,17 +98,19 @@ public class IncircleCalculator{
       testpoint[1]=random.nextDouble()*scanboxheight+scanboxtop; 
       if(polygonpath.contains(testpoint[0],testpoint[1])){
         testdepth=getPointDepth(testpoint);
-        if(testdepth>deeppointdepth){
+        if(testdepth>deeppointdepthsquared){
           deeppoint=testpoint;
           testpoint=new double[2];
-          deeppointdepth=testdepth;}}}}
+          deeppointdepthsquared=testdepth;}}}}
   
   //get distances from point to all polygon segs
   //return smallest
   private double getPointDepth(double[] point){
     double dtest,dmin=Double.MAX_VALUE;
     for(double[] seg:polygonsegs){
-      dtest=GD.getDistance_PointSeg(point[0],point[1],seg[0],seg[1],seg[2],seg[3]);
+//      dtest=GD.getDistance_PointSeg(point[0],point[1],seg[0],seg[1],seg[2],seg[3]);
+      //dtest should use distance squared, for speed
+      dtest=GD.getDistanceSquared_PointSeg(point[0],point[1],seg[0],seg[1],seg[2],seg[3]);
       if(dtest<dmin)
         dmin=dtest;}
     return dmin;}

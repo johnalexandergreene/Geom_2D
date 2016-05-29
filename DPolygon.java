@@ -1,5 +1,6 @@
 package org.fleen.geom_2D;
 
+import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class DPolygon extends ArrayList<DPoint>{
 
   public Double signedarea=null;
   public Double perimeter=null;
-  public DCircle incircle=null;
+  public DCircle incircle=null,outcircle=null;
   
   public double[][] getPointArrays(){
     int s=size();
@@ -70,6 +71,24 @@ public class DPolygon extends ArrayList<DPoint>{
     if(incircle==null)
       incircle=IncircleCalculator.getIncircle(getPointArrays());
     return incircle;}
+  
+  /*
+   * concentric to incircle
+   * radius is distance from incircle center to furthest vertex
+   */
+  public DCircle getOutcircle(){
+    if(outcircle==null)
+      initOutcircle();
+    return outcircle;}
+  
+  private void initOutcircle(){
+    DCircle ic=getIncircle();
+    double dtest,dfurthest=0;
+    for(DPoint p:this){
+      dtest=p.getDistance(ic.x,ic.y);
+      if(dtest>dfurthest)
+        dfurthest=dtest;}
+    outcircle=new DCircle(ic.x,ic.y,dfurthest);}
   
   /*
    * Center of the incircle
@@ -180,6 +199,24 @@ public class DPolygon extends ArrayList<DPoint>{
            return true;}}
      //all failed. no intersection
      return false;}
+  
+  /*
+   * test outcircles
+   */
+  public boolean roughlyIntersect(DPolygon other){
+    DCircle 
+      thisoc=getOutcircle(),
+      otheroc=other.getOutcircle();
+    double a=GD.getDistance_PointPoint(thisoc.x,thisoc.y,otheroc.x,otheroc.y);
+    boolean i=a<(thisoc.r+otheroc.r);
+    return i;}
+  
+//  public boolean intersect(DPolygon other){
+//    Area 
+//      a0=new Area(getPath2D()),
+//      a1=new Area(other.getPath2D());
+//    a0.intersect(a1);
+//    return !a0.isEmpty();}
   
   /*
    * ++++++++++++++++++++++++++++++++
