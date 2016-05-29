@@ -17,9 +17,9 @@ import java.util.Random;
  */
 public class IncircleCalculator{
   
-//  private static final int SAMPLESIZE=400,SCANCOUNT=6;//unnecessarily thorough?
-  private static final int SAMPLESIZE=80,SCANCOUNT=5;
-//  private static final int SAMPLESIZE=60,SCANCOUNT=4;
+//  private static final int SAMPLESIZE=400,SCANCOUNT=6;//99.98% accurate
+  private static final int SAMPLESIZE=80,SCANCOUNT=5;//99.89% accurate
+//  private static final int SAMPLESIZE=60,SCANCOUNT=4;//99.75% accurate
   
   /*
    * ################################
@@ -164,11 +164,46 @@ public class IncircleCalculator{
     {0,0},{1,3},{3,3},{5,4},{5,2},{3,2},{5,0}
   };
   
+  private static final double[][] TESTPOLYGON_SQUARE={
+    {0,0},{0,1},{1,1},{1,0}
+  };
+  
   private static final void test0(){
+    System.out.println("################################");
     System.out.println("TESTING INCIRCLERADIUSCALCULATOR");
-    DCircle c=getIncircle(TESTPOLYGON3);
-    System.out.println("DEEP POINT= ["+c.x+","+c.y+"]");
-    System.out.println("DEEP POINT DEPTH= "+c.r);
+    System.out.println("################################");
+    int testcount=1000;
+    /*
+     * Make a square
+     * get the incircle via our calculator
+     * get the incircle via simple math
+     * do it 1000 times
+     * get the average of the deviation
+     * this gives us the accuracy of our incircle calculator at the present samplesize and scancount
+     */
+    System.out.println("TEST SQUARE");
+    double[] truecenter=GD.getPoint_Mid2Points(TESTPOLYGON_SQUARE[0][0],TESTPOLYGON_SQUARE[0][1],TESTPOLYGON_SQUARE[2][0],TESTPOLYGON_SQUARE[2][1]);
+    System.out.println("truecenter = "+truecenter[0]+" , "+truecenter[1]);
+    DCircle incircle;
+    double offsetfromtrue,offsetsum=0;
+    for(int i=0;i<testcount;i++){
+      incircle=IncircleCalculator.getIncircle(TESTPOLYGON_SQUARE);
+      offsetfromtrue=GD.getDistance_PointPoint(incircle.x,incircle.y,truecenter[0],truecenter[1]);
+      offsetsum+=offsetfromtrue;}
+    double offsetaverage=offsetsum/testcount;
+    //get the offset in terms of the diagonal span of the square 
+    double proportionaldeviation=
+      offsetaverage/
+      GD.getDistance_PointPoint(TESTPOLYGON_SQUARE[0][0],TESTPOLYGON_SQUARE[0][1],TESTPOLYGON_SQUARE[2][0],TESTPOLYGON_SQUARE[2][1]);
+    System.out.println("PROPORTIONAL DEVIATION="+proportionaldeviation);
+    System.out.println("%ACCURACY="+((1-proportionaldeviation)*100));
+    
+    
+    
+    
+//    DCircle c=getIncircle(TESTPOLYGON3);
+//    System.out.println("DEEP POINT= ["+c.x+","+c.y+"]");
+//    System.out.println("DEEP POINT DEPTH= "+c.r);
     
   }
 
