@@ -1,4 +1,4 @@
-package org.fleen.geom_2D.polygonRasterMap;
+package org.fleen.geom_2D.rasterMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +28,12 @@ public class Cell{
   /*
    * xcoor, ycoor, center x, center y, the cellarray that contains this cell
    */
-  Cell(PolygonRasterMap rastermap,int x,int y){
+  Cell(RasterMap rastermap,int x,int y){
     this.rastermap=rastermap;
     this.x=x;
     this.y=y;}
   
-  Cell(PolygonRasterMap rastermap,int x,int y,boolean offmap){
+  Cell(RasterMap rastermap,int x,int y,boolean offmap){
     this(rastermap,x,y);
     this.offmap=offmap;}
   
@@ -43,7 +43,7 @@ public class Cell{
    * ################################
    */
   
-  PolygonRasterMap rastermap;
+  RasterMap rastermap;
   //the cell may be off the raster map. it happens when we're 
   //rendering a polygon that's only partially within the viewport
   boolean offmap=false;

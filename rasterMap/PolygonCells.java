@@ -1,9 +1,9 @@
-package org.fleen.geom_2D.polygonRasterMap;
+package org.fleen.geom_2D.rasterMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class PolygonCells{
    * ################################
    */
   
-  PolygonCells(PolygonRasterMap rastermap,DPolygon polygon){
+  PolygonCells(RasterMap rastermap,DPolygon polygon){
     this.rastermap=rastermap;
     this.polygon=polygon;
     initTransformedPolygon();
@@ -54,7 +54,7 @@ public class PolygonCells{
    * ################################
    */
   
-  PolygonRasterMap rastermap;
+  RasterMap rastermap;
   
   /*
    * ################################
@@ -86,7 +86,7 @@ public class PolygonCells{
    * when we're getting cells we first look in the local cache
    * if the cell isn't there then we get it from the raster map (from the cells array or create it) and stick it in the local cache
    */
-  Map<CellKey,Cell> localcellcache=new Hashtable<CellKey,Cell>();
+  Map<CellKey,Cell> localcellcache=new HashMap<CellKey,Cell>();
   
   //the cells right on the edge-line of the polygon
   Set<Cell> primaryedgecells=new HashSet<Cell>();
@@ -176,7 +176,7 @@ public class PolygonCells{
     edgeexteriorlayers.add(exlayer);
     //now the first interior and exterior edge layers are done
     //get the number of additional edge layers to do
-    int additionaledgelayerscount=(int)(rastermap.glowspan/PolygonRasterMap.CELLSPAN)+1;
+    int additionaledgelayerscount=(int)(rastermap.glowspan/RasterMap.CELLSPAN)+1;
     doAdditionalInteriorEdgeLayers(inlayer,additionaledgelayerscount);
     doAdditionalExteriorEdgeLayers(exlayer,additionaledgelayerscount);}
   

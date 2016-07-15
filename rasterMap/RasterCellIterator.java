@@ -1,13 +1,13 @@
-package org.fleen.geom_2D.polygonRasterMap;
+package org.fleen.geom_2D.rasterMap;
 
 import java.util.Iterator;
 
 class RasterCellIterator implements Iterator<Cell> {
   
-  RasterCellIterator(PolygonRasterMap rastermap){
+  RasterCellIterator(RasterMap rastermap){
     this.rastermap=rastermap;}
   
-  PolygonRasterMap rastermap;
+  RasterMap rastermap;
   int x=0,y=0;
   
   public boolean hasNext(){

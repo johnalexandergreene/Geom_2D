@@ -1,4 +1,4 @@
-package org.fleen.geom_2D.polygonRasterMap;
+package org.fleen.geom_2D.rasterMap;
 
 import java.awt.geom.AffineTransform;
 import java.util.Arrays;
@@ -8,6 +8,8 @@ import java.util.List;
 import org.fleen.geom_2D.DPolygon;
 
 /*
+ * 
+ * 
  * Map 0..n DPolygons to a raster.
  * The raster is a rectangular array of 1x1 cells
  * We can do a transform
@@ -18,7 +20,7 @@ import org.fleen.geom_2D.DPolygon;
  *   Total coverage means intensity of 1.0. Partial or near-the-edge means less than 1.0.
  *   Right on the edge is intensity=0.5  
  */
-public class PolygonRasterMap implements Iterable<Cell>{
+public class PolygonRasterMap_OLD000 implements Iterable<Cell>{
   
   /*
    * ################################
@@ -27,23 +29,23 @@ public class PolygonRasterMap implements Iterable<Cell>{
    */
   
   //empty
-  public PolygonRasterMap(int w,int h,AffineTransform t,double glowspan){
+  public PolygonRasterMap_OLD000(int w,int h,AffineTransform t,double glowspan){
     this.glowspan=glowspan;
     this.transform=t;
     initCells(w,h);}
   
   //1 polygon
-  public PolygonRasterMap(int w,int h,AffineTransform t,double glowspan,DPolygon polygon){
+  public PolygonRasterMap_OLD000(int w,int h,AffineTransform t,double glowspan,DPolygon polygon){
     this(w,h,t,glowspan);
     castPresence(polygon);}
   
   //a list of polygons
-  public PolygonRasterMap(int w,int h,AffineTransform t,double glowspan,List<DPolygon> polygons){
+  public PolygonRasterMap_OLD000(int w,int h,AffineTransform t,double glowspan,List<DPolygon> polygons){
     this(w,h,t,glowspan);
     castPresence(polygons);}
   
   //an array of polygons
-  public PolygonRasterMap(int w,int h,AffineTransform t,double glowspan,DPolygon... polygons){
+  public PolygonRasterMap_OLD000(int w,int h,AffineTransform t,double glowspan,DPolygon... polygons){
     this(w,h,t,glowspan);
     castPresence(polygons);}
   
@@ -137,7 +139,7 @@ public class PolygonRasterMap implements Iterable<Cell>{
     return pcm;}
   
   public void castPresence(List<DPolygon> polygons){
-//    Map<DPolygon,PolygonCells> maps=new Hashtable<DPolygon,PolygonCells>();
+//    Map<DPolygon,PolygonCells> maps=new HashMap<DPolygon,PolygonCells>();
 //    PolygonCells pcm;
     for(DPolygon polygon:polygons)
       castPresence(polygon);}

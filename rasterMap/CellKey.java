@@ -1,4 +1,4 @@
-package org.fleen.geom_2D.polygonRasterMap;
+package org.fleen.geom_2D.rasterMap;
 
 /*
  * cell coors wrapped in an object for use in a map

@@ -1,4 +1,4 @@
-package org.fleen.geom_2D.polygonRasterMap;
+package org.fleen.geom_2D.rasterMap;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -85,7 +85,7 @@ public class Test_2AdjacentRectangles{
     CELLARRAYWIDTH=800,
     CELLARRAYHEIGHT=800;
   private static final double GLOWSPAN=1.5;
-  PolygonRasterMap rastermap;
+  RasterMap rastermap;
   PolygonCells polygoncellmap;//the cells that feel the presence of the polygon
   
   void initRasterMap(){
@@ -95,7 +95,7 @@ public class Test_2AdjacentRectangles{
     t.rotate(0.2);
     t.scale(12.0,12.0);
     
-    rastermap=new PolygonRasterMap(CELLARRAYWIDTH,CELLARRAYHEIGHT,t,GLOWSPAN);}
+    rastermap=new RasterMap(CELLARRAYWIDTH,CELLARRAYHEIGHT,t,GLOWSPAN);}
   
   /*
    * ################################

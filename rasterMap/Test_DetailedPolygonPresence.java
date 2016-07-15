@@ -1,4 +1,4 @@
-package org.fleen.geom_2D.polygonRasterMap;
+package org.fleen.geom_2D.rasterMap;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -88,7 +88,7 @@ public class Test_DetailedPolygonPresence{
     CELLARRAYWIDTH=100,
     CELLARRAYHEIGHT=100;
   private static final double GLOWSPAN=2.5;
-  PolygonRasterMap rastermap;
+  RasterMap rastermap;
   PolygonCells polygoncellmap;//the cells that feel the presence of the polygon
   
   void initRasterMap(){
@@ -97,7 +97,7 @@ public class Test_DetailedPolygonPresence{
 //    t.translate(0,0);
 //    t.rotate(0.1);
     
-    rastermap=new PolygonRasterMap(CELLARRAYWIDTH,CELLARRAYHEIGHT,t,GLOWSPAN);}
+    rastermap=new RasterMap(CELLARRAYWIDTH,CELLARRAYHEIGHT,t,GLOWSPAN);}
   
   /*
    * ################################
