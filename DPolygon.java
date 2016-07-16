@@ -1,6 +1,5 @@
 package org.fleen.geom_2D;
 
-import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
