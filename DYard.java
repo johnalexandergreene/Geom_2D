@@ -11,6 +11,12 @@ public class DYard extends ArrayList<DPolygon>{
 
   private static final long serialVersionUID=-1952265148800512304L;
   
+  /*
+   * ################################
+   * CONSTRUCTORS
+   * ################################
+   */
+  
   public DYard(List<DPolygon> polygons){
     super();
     addAll(polygons);}

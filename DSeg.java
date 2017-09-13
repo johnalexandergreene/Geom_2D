@@ -41,6 +41,9 @@ public class DSeg{
   public double[] getPointAtRealOffset(double a){
     return GD.getPoint_PointPointInterval(p0.x,p0.y,p1.x,p1.y,a);}
   
+  public DPoint getDPointAtRealOffset(double a){
+    return new DPoint(GD.getPoint_PointPointInterval(p0.x,p0.y,p1.x,p1.y,a));}
+  
   /*
    * returns the point at the specified offset from p0.
    * foreward is positive, backward is negative.
@@ -62,6 +65,28 @@ public class DSeg{
     return GD.testIntersection_2Segs(
       p0.x,p0.y,p1.x,p1.y,
       other.p0.x,other.p0.y,other.p1.x,other.p1.y);}
+  
+  /*
+   * we get distances
+   *   the closest point on s.p0 to this 
+   *   the closest point on s.p1 to this
+   *   the closest point on s to this.p0
+   *   the closest point on s to this.p1
+   * return the smallest
+   * also check for intersection, which is distance=0.
+   */
+  public double getDistance(DSeg s){
+    if(intersects(s))return 0;
+    double[] a={ 
+      GD.getDistance_PointSeg(s.p0.x,s.p0.y,p0.x,p0.y,p1.x,p1.y),
+      GD.getDistance_PointSeg(s.p1.x,s.p1.y,p0.x,p0.y,p1.x,p1.y),
+      GD.getDistance_PointSeg(p0.x,p0.y,s.p0.x,s.p0.y,s.p1.x,s.p1.y),
+      GD.getDistance_PointSeg(p1.x,p1.y,s.p0.x,s.p0.y,s.p1.x,s.p1.y)};
+    double smallest=Double.MAX_VALUE;
+    for(double test:a)
+      if(test<smallest)
+        smallest=test;
+    return smallest;}
   
   /*
    * ################################

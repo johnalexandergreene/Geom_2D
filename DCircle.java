@@ -33,6 +33,12 @@ public class DCircle{
   
   public double x=0,y=0,r=0;
   
+  public double getRadius(){
+    return r;}
+  
+  public double getDiameter(){
+    return r*2;}
+  
   public double[] getCenter(){
     return new double[]{x,y};}
   

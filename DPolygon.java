@@ -9,6 +9,9 @@ import java.util.List;
 /*
  * immutable 2d polygon
  * everything we can think of for making a useful polygon.
+ * 
+ * TODO put some of thse geometry methods into G2D
+ * also organize G2D
  */
 public class DPolygon extends ArrayList<DPoint>{
   
@@ -19,6 +22,12 @@ public class DPolygon extends ArrayList<DPoint>{
   /*
    * ################################
    * INIT
+   * 
+   * Note
+   *   If we are going to add points after construction, be careful about invoking
+   *   any geometry analysis methods before we are done with that
+   *   because cache
+   *   
    * ################################
    */
   
@@ -39,104 +48,76 @@ public class DPolygon extends ArrayList<DPoint>{
    * GEOMETRY
    * ################################
    */
-
+  
   public Double signedarea=null;
   public Double perimeter=null;
-  public DCircle incircle=null,outcircle=null;
   
-  public double[][] getPointArrays(){
-    int s=size();
-    double[][] a=new double[s][2];
-    DPoint p;
-    for(int i=0;i<s;i++){
-      p=get(i);
-      a[i]=new double[]{p.x,p.y};}
-    return a;}
+  public double getSignedArea(){
+    if(signedarea==null)
+      signedarea=GD.getSignedArea2D(getPointsAsDoubles());
+    return signedarea;}
   
   public double getArea(){
     return Math.abs(getSignedArea());}
   
   public double getPerimeter(){
     if(perimeter==null)
-      perimeter=GD.getPerimeter(getPointArrays());
+      perimeter=GD.getPerimeter(getPointsAsDoubles());
     return perimeter;}
   
-  public double getSignedArea(){
-    if(signedarea==null)
-      signedarea=GD.getSignedArea2D(getPointArrays());
-    return signedarea;}
-  
-  public DCircle getIncircle(){
-    if(incircle==null)
-      incircle=IncircleCalculator.getIncircle(getPointArrays());
-    return incircle;}
-  
   /*
-   * concentric to incircle
-   * radius is distance from incircle center to furthest vertex
-   */
-  public DCircle getOutcircle(){
-    if(outcircle==null)
-      initOutcircle();
-    return outcircle;}
-  
-  private void initOutcircle(){
-    DCircle ic=getIncircle();
-    double dtest,dfurthest=0;
-    for(DPoint p:this){
-      dtest=p.getDistance(ic.x,ic.y);
-      if(dtest>dfurthest)
-        dfurthest=dtest;}
-    outcircle=new DCircle(ic.x,ic.y,dfurthest);}
-  
-  /*
-   * Center of the incircle
-   * inside point furthest from edge
-   * if there are multiple points then one is picked at random
-   */
-  public double[] getInPoint(){
-    DCircle c=getIncircle();
-    return new double[]{c.x,c.y};}
-  
-  /*
-   * radius of incircle
-   */
-  public double getDepth(){
-    DCircle c=getIncircle();
-    return c.r;}
-  
-  /*
-   * diameter of incircle
-   */
-  public double getDetailSize(){
-    return getDepth()*2;}
-  
-  /*
-   * index positive perimeter traversal direction
+   * (aka twist)
+   * The direction that we are going when tracing the points from index=0 to index=last. 
+   * That is to say, the index positive perimeter traversal direction
    * true means clockwise, false means counterclockwise
    */
-  public boolean getTwist(){
+  public boolean getChirality(){
     return getSignedArea()<0;}
   
-  
-  //assume twist is clockwise
-  //TODO
-  public boolean isConcave(){
-//    int iprev,inext,s=points.length,angle;
-//    boolean t=false;
-//    for(int i=0;i<s;i++){
-//      iprev=i-1;
-//      if(iprev==-1)iprev=s-1;
-//      inext=i+1;
-//      if(inext==s)i=0;
-//      angle=GKis.getRightAngle(get(iprev),get(i),get(inext));
-//      if(angle>6)t=true;}
-//    if(this.get
-    return true;
-  }
-  
+  /*
+   * how thick and rounded this polygon. Circles are max thick.
+   * the opposite of gangliness
+   */
   public double getChunkiness(){
     return getArea()/getPerimeter();}
+  
+  /*
+   * how floppyropey this polygon is
+   * the opposite of chunkiness
+   */
+  public double getGangliness(){
+    return getPerimeter()/getArea();}
+ 
+  /*
+   * ++++++++++++++++++++++++++++++++
+   * POINTS AS DOUBLES
+   * ++++++++++++++++++++++++++++++++
+   */
+    
+  private double[][] pointsasdoubles=null;
+
+  /*
+   * we put the points of this polygon in this form for use in some of our
+   * geometry analyzing methods 
+   */
+  public double[][] getPointsAsDoubles(){
+    if(pointsasdoubles==null)
+      initPointsAsDoubles();
+    return pointsasdoubles;}
+  
+  public void initPointsAsDoubles(){
+    int s=size();
+    pointsasdoubles=new double[s][2];
+    DPoint p;
+    for(int i=0;i<s;i++){
+      p=get(i);
+      pointsasdoubles[i]=new double[]{p.x,p.y};}}
+  
+  /*
+   * ++++++++++++++++++++++++++++++++
+   * RELATIONSHIP BETWEEN POLYGON AND POINT
+   * ++++++++++++++++++++++++++++++++
+   */
   
   /*
    * point containment test
@@ -150,7 +131,7 @@ public class DPolygon extends ArrayList<DPoint>{
     return p.contains(a.x,a.y);}
   
   /*
-   * return the distaicne from the specified point to this polygon
+   * return the distance from the specified point to this polygon
    * test all seg distances, return the closest;
    */
   public double getDistance(double x,double y){
@@ -160,6 +141,25 @@ public class DPolygon extends ArrayList<DPoint>{
       if(dtest<dclosest)
         dclosest=dtest;}
     return dclosest;}
+  
+  /*
+   * ++++++++++++++++++++++++++++++++
+   * RELATIONSHIP BETWEEN 2 POLYGONS
+   * ++++++++++++++++++++++++++++++++
+   */
+  
+  /*
+   * get distance between 2 closest segs on 2 polygons
+   * TODO put in G2D?
+   */
+  public double getDistance(DPolygon p){
+    double closest=Double.MAX_VALUE,test;
+    for(DSeg s0:getSegs()){
+      for(DSeg s1:p.getSegs()){
+        test=s0.getDistance(s1);
+        if(test<closest)
+          closest=test;}}
+    return closest;}
   
   /*
    * return true if this polygon intersects the other polygon
@@ -200,22 +200,78 @@ public class DPolygon extends ArrayList<DPoint>{
      return false;}
   
   /*
+   * ++++++++++++++++++++++++++++++++
+   * INCIRCLE
+   * ++++++++++++++++++++++++++++++++
+   */
+  
+  public DCircle incircle=null;
+  
+  public DCircle getIncircle(){
+    if(incircle==null)
+      incircle=IncircleCalculator.getIncircle(getPointsAsDoubles());
+    return incircle;}
+  
+  /*
+   * Center of the incircle
+   * inside point furthest from edge
+   * if there are multiple points then one is picked at random
+   */
+  public double[] getInPoint(){
+    DCircle c=getIncircle();
+    return new double[]{c.x,c.y};}
+  
+  /*
+   * radius of incircle
+   */
+  public double getDepth(){
+    DCircle c=getIncircle();
+    return c.r;}
+  
+  /*
+   * diameter of incircle
+   */
+  public double getDetailSize(){
+    return getDepth()*2;}
+  
+  
+  /*
+   * ++++++++++++++++++++++++++++++++
+   * OUTCIRCLE
+   * ++++++++++++++++++++++++++++++++
+   */
+  
+  DCircle outcircle=null;
+  
+  /*
+   * concentric to incircle
+   * radius is distance from incircle center to furthest vertex
+   */
+  public DCircle getOutcircle(){
+    if(outcircle==null)
+      initOutcircle();
+    return outcircle;}
+  
+  private void initOutcircle(){
+    DCircle ic=getIncircle();
+    double dtest,dfurthest=0;
+    for(DPoint p:this){
+      dtest=p.getDistance(ic.x,ic.y);
+      if(dtest>dfurthest)
+        dfurthest=dtest;}
+    outcircle=new DCircle(ic.x,ic.y,dfurthest);}
+  
+  /*
+   * test for the intersection of outcircles
    * test outcircles
    */
-  public boolean roughlyIntersect(DPolygon other){
+  public boolean intersectOutcircles(DPolygon other){
     DCircle 
       thisoc=getOutcircle(),
       otheroc=other.getOutcircle();
     double a=GD.getDistance_PointPoint(thisoc.x,thisoc.y,otheroc.x,otheroc.y);
     boolean i=a<(thisoc.r+otheroc.r);
     return i;}
-  
-//  public boolean intersect(DPolygon other){
-//    Area 
-//      a0=new Area(getPath2D()),
-//      a1=new Area(other.getPath2D());
-//    a0.intersect(a1);
-//    return !a0.isEmpty();}
   
   /*
    * ++++++++++++++++++++++++++++++++
@@ -239,6 +295,60 @@ public class DPolygon extends ArrayList<DPoint>{
       segs.add(new DSeg(get(i0),get(i1)));}}
   
   /*
+   * ++++++++++++++++++++++++++++++++
+   * INNEROUTER POLYGON
+   * get the polygon by projecting inward or outward by a uniform distance.
+   * handles trig at corners and such
+   * we can get the polygon or we can get the vectors (dir,dis)
+   * ++++++++++++++++++++++++++++++++
+   */
+  
+  public List<DVector> getInnerOuterPolygonVectors(double offset){
+    boolean clockwise=getChirality();
+    int s=size(),iprior,inext;
+    List<DVector> vectors=new ArrayList<DVector>(s);
+    DPoint p,pprior,pnext;
+    DVector v;
+    for(int i=0;i<s;i++){
+      iprior=i-1;
+      if(iprior==-1)iprior=s-1;
+      inext=i+1;
+      if(inext==s)
+      inext=0;
+      p=get(i);
+      pprior=get(iprior);
+      pnext=get(inext);
+      v=getInnerOuterPointVector(pprior,p,pnext,clockwise,offset);
+      vectors.add(v);}
+    return vectors;}
+  
+  private DVector getInnerOuterPointVector(DPoint p0,DPoint p1,DPoint p2,boolean clockwise,double offset){
+    double angle,dir;
+    if(clockwise){
+      angle=GD.getAngle_3Points(p0.x,p0.y,p1.x,p1.y,p2.x,p2.y);
+      dir=GD.getDirection_3Points(p0.x,p0.y,p1.x,p1.y,p2.x,p2.y);
+    }else{  
+      angle=GD.getAngle_3Points(p2.x,p2.y,p1.x,p1.y,p0.x,p0.y);
+      dir=GD.getDirection_3Points(p2.x,p2.y,p1.x,p1.y,p0.x,p0.y);}
+    if(angle>GD.PI)
+      angle=GD.PI2-angle;
+    double dis=offset/(GD.sin(angle/2));
+    return new DVector(dir,dis);}
+  
+  public DPolygon getInnerOuterPolygon(double offset){
+    List<DVector> vectors=getInnerOuterPolygonVectors(offset);
+    int s=size();
+    DPolygon pinnerouter=new DPolygon(s);
+    DPoint p0,p1;
+    DVector v;
+    for(int i=0;i<s;i++){
+      p0=get(i);
+      v=vectors.get(i);
+      p1=p0.getPoint(v);
+      pinnerouter.add(p1);}
+    return pinnerouter;}
+  
+  /*
    * ################################
    * JAVA2D
    * ################################
@@ -258,7 +368,7 @@ public class DPolygon extends ArrayList<DPoint>{
     return bounds;}
   
   private void initBounds(){
-    double[][] pa=getPointArrays();
+    double[][] pa=getPointsAsDoubles();
     double maxx=Double.MIN_VALUE,maxy=maxx,minx=Double.MAX_VALUE,miny=minx;
     for(int i=0;i<pa.length;i++){
       if(minx>pa[i][0])minx=pa[i][0];
@@ -273,7 +383,7 @@ public class DPolygon extends ArrayList<DPoint>{
    * ++++++++++++++++++++++++++++++++
    */
   
-  Path2D.Double path=null;
+  transient Path2D.Double path=null;
   
   public Path2D.Double getPath2D(){
     if(path==null)
@@ -282,7 +392,6 @@ public class DPolygon extends ArrayList<DPoint>{
   
   private void initPath2D(){
     path=new Path2D.Double();
-//    path.setWindingRule(Path2D.WIND_NON_ZERO);
     DPoint p;
     p=get(0);
     path.moveTo(p.x,p.y);
@@ -338,6 +447,12 @@ public class DPolygon extends ArrayList<DPoint>{
    * OBJECT
    * ################################
    */
+  
+  public Object clone(){
+    DPolygon clone=new DPolygon();
+    for(DPoint p:this){
+      clone.add(new DPoint(p));}
+    return clone;}
   
   public String toString(){
     StringBuffer a=new StringBuffer("[");

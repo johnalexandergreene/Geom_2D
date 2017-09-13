@@ -58,6 +58,9 @@ public class DPoint implements Serializable{
     double[] a=GD.getPoint_PointDirectionInterval(x,y,dir,dis);
     return new DPoint(a);}
   
+  public DPoint getPoint(DVector v){
+    return getPoint(v.direction,v.magnitude);}
+  
   public void applyVector(DVector vector){
     double[] a=vector.getLocation(this);
     x=a[0];
@@ -77,6 +80,6 @@ public class DPoint implements Serializable{
     return x==b.x&&y==b.y;}
   
   public String toString(){
-    return "["+hashCode()+"("+x+","+y+")]";}
+    return "["+x+","+y+"]";}
 
 }
