@@ -94,6 +94,18 @@ public class GD{
     if(lenSq<0)lenSq=0;
     return sqrt(lenSq);}
   
+//  //from stackoverflow
+//  public static double getDistance_PointLineZ(double x, double y, double lx0, double ly0, double lx1, double ly1){
+//    double A = x - lx0; // position of point rel one end of line
+//    double B = y - ly0;
+//    double C = lx1 - lx0; // vector along line
+//    double D = ly1 - ly0;
+//    double E = -D; // orthogonal vector
+//    double F = C;
+//    double dot = A * E + B * F;
+//    double len_sq = E * E + F * F;
+//    return Math.abs(dot)/Math.sqrt(len_sq);}
+  
   /*
    * use the line dist as the side of 2 right triangles
    * the distance to the seg end points are the 2 hypoteneuses
@@ -1026,6 +1038,113 @@ public class GD{
   
   
   }
+  
+//private void bresenhamSegDraw(int x0,int y0,int x1,int y1){
+//int w=x1-x0;
+//int h=y1-y0;
+//int dx1=0,dy1=0,dx2=0,dy2=0;
+//if(w<0)
+//  dx1=-1; 
+//else if(w>0)
+//  dx1=1;
+//if(h<0)
+//  dy1=-1; 
+//else if(h>0) 
+//  dy1=1;
+//if(w<0)
+//  dx2=-1; 
+//else if(w>0) 
+//  dx2=1;
+//int longest=Math.abs(w);
+//int shortest=Math.abs(h);
+//if(!(longest>shortest)){
+//  longest=Math.abs(h);
+//  shortest=Math.abs(w);
+//  if(h<0)
+//    dy2=-1; 
+//  else if(h>0) 
+//    dy2=1;
+//    dx2=0;}
+//int numerator=longest>>1;
+//for(int i=0;i<=longest;i++){
+//  edgecells.add(new ZCell(x0,y0));
+//  numerator+=shortest;
+//  if(!(numerator<longest)){
+//    numerator-=longest;
+//    x0+=dx1;
+//    y0+=dy1;
+//  }else{
+//    x0+=dx2;
+//    y0+=dy2;}}}
+//
+///*
+//* BRESENHAM SUPERCOVER LINE DRAW
+//* 
+//* use Bresenham-like algorithm to address a line of squares from (y1,x1) to (y2,x2) 
+//* The difference from Bresenham is that ALL the points of the line are 
+//* printed, not only one per x coordinate. 
+//* Principles of the Bresenham's algorithm (heavily modified) were taken from: 
+//* http://www.intranet.ca/~sshah/waste/art7.html 
+//*/
+//void bresenhamSupercoverSegDraw(int x0,int y0,int x1,int y1){
+//int i;               // loop counter 
+//int ystep, xstep;    // the step on y and x axis 
+//int error;           // the error accumulated during the increment 
+//int errorprev;       // vision the previous value of the error variable 
+//int y = y0, x = x0;  // the line points 
+//double ddy, ddx;        // compulsory variables: the double values of dy and dx 
+//int dx = x1 - x0; 
+//int dy = y1 - y0;
+////segcells.add(cells[x][y]); //skip the first cell, otherwise some cells get selected twice
+//// NB the last point can't be here, because of its previous point (which has to be verified) 
+//if (dy < 0){ 
+//  ystep = -1; 
+//  dy = -dy; 
+//}else 
+//  ystep = 1; 
+//if (dx < 0){ 
+//  xstep = -1; 
+//  dx = -dx; 
+//}else 
+//  xstep = 1; 
+//ddy = 2 * dy;  // work with double values for full precision 
+//ddx = 2 * dx; 
+//if (ddx >= ddy){  // first octant (0 <= slope <= 1) 
+//  // compulsory initialization (even for errorprev, needed when dx==dy) 
+//  errorprev = error = dx;  // start in the middle of the square 
+//  for (i=0 ; i < dx ; i++){  // do not use the first point (already done) 
+//    x += xstep; 
+//    error += ddy; 
+//    if (error > ddx){  // increment y if AFTER the middle ( > ) 
+//      y += ystep; 
+//      error -= ddx; 
+//      // three cases (octant == right->right-top for directions below): 
+//      if (error + errorprev < ddx){  // bottom square also
+//        edgecells.add(new ZCell(x,y-ystep));
+//      }else if(error + errorprev > ddx){  // left square also 
+//        edgecells.add(new ZCell(x-xstep,y));
+//      }else{  // corner: bottom and left squares also 
+//        edgecells.add(new ZCell(x,y-ystep));
+//        edgecells.add(new ZCell(x-xstep,y));}} 
+//    edgecells.add(new ZCell(x,y));
+//    errorprev = error;} 
+//}else{// the same as above 
+//  errorprev = error = dy; 
+//  for (i=0 ; i < dy ; i++){ 
+//    y += ystep; 
+//    error += ddx; 
+//    if (error > ddy){ 
+//      x += xstep; 
+//      error -= ddy; 
+//      if (error + errorprev < ddy){ 
+//        edgecells.add(new ZCell(x-xstep,y));
+//      }else if (error + errorprev > ddy){ 
+//        edgecells.add(new ZCell(x,y-ystep));
+//      }else{ 
+//        edgecells.add(new ZCell(x-xstep,y));
+//        edgecells.add(new ZCell(x,y-ystep));}}
+//    edgecells.add(new ZCell(x,y));
+//    errorprev = error;}}}
   
   
  

@@ -1,5 +1,7 @@
 package org.fleen.geom_2D;
 
+import java.util.List;
+
 /*
  * direction and magnitude components
  */
@@ -16,6 +18,10 @@ public class DVector{
   
   //sum vector
   public DVector(DVector... v){
+    for(DVector a:v)
+      add(a);}
+  
+  public DVector(List<DVector> v){
     for(DVector a:v)
       add(a);}
   

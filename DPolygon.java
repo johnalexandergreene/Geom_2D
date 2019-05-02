@@ -21,7 +21,7 @@ public class DPolygon extends ArrayList<DPoint>{
 
   /*
    * ################################
-   * INIT
+   * CONSTRUCTORS
    * 
    * Note
    *   If we are going to add points after construction, be careful about invoking
@@ -131,8 +131,8 @@ public class DPolygon extends ArrayList<DPoint>{
     return p.contains(a.x,a.y);}
   
   /*
-   * return the distance from the specified point to this polygon
-   * test all seg distances, return the closest;
+   * return the distance from the specified point to this polygon's edge
+   * test all seg distances, return the closest
    */
   public double getDistance(double x,double y){
     double dtest,dclosest=Double.MAX_VALUE;
@@ -296,7 +296,7 @@ public class DPolygon extends ArrayList<DPoint>{
   
   /*
    * ++++++++++++++++++++++++++++++++
-   * INNEROUTER POLYGON
+   * INNER OUTER POLYGON
    * get the polygon by projecting inward or outward by a uniform distance.
    * handles trig at corners and such
    * we can get the polygon or we can get the vectors (dir,dis)
